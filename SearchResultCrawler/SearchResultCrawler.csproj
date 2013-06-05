@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CMS.cs" />
     <Compile Include="GoogleSearchQuery.cs" />
     <Compile Include="Keys.cs" />
     <Compile Include="Program.cs" />

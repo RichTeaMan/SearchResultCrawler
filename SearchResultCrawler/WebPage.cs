@@ -21,6 +21,7 @@ namespace SearchResultCrawler
         public ConcurrentDictionary<string, Resource> Resources;
         public string RootUrl { get { return rootUrl.ToString(); } }
         private Uri rootUrl;
+        public string Html { get; private set; }
         public WebPage(string url)
         {
             rootUrl = new Uri(url);
@@ -30,9 +31,9 @@ namespace SearchResultCrawler
             var root = new Resource(url);
             if(root.StatusCode == HttpStatusCode.OK)
             {
-                string html = ASCIIEncoding.ASCII.GetString(root.Data);
+                Html = ASCIIEncoding.ASCII.GetString(root.Data);
                 var document = new HtmlDocument();
-                document.LoadHtml(html);
+                document.LoadHtml(Html);
                 FillResources(document.DocumentNode);
             }
         }
@@ -52,6 +53,11 @@ namespace SearchResultCrawler
             });
 
             return this;
+        }
+
+        public CMS GetCMS()
+        {
+            return new CMS(Html);
         }
 
         public bool IsResponsive()
