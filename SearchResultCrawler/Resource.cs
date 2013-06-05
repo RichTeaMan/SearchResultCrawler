@@ -13,10 +13,14 @@ namespace SearchResultCrawler
         public int ContentLength { get { return Data.Length; } }
         public HttpStatusCode StatusCode {get; private set;}
         public string ContentType { get; private set; }
+        public WebHeaderCollection Headers;
+
+
         public Resource(string url)
         {
             //Console.WriteLine("Fetching {0}", url);
             var request = (HttpWebRequest)WebRequest.Create(url);
+            request.UserAgent = "TomBot";
             request.Proxy = null;
             request.Timeout = 10 * 1000; // 10 second timeout
             var response = (HttpWebResponse)request.GetResponse();
@@ -37,6 +41,7 @@ namespace SearchResultCrawler
 
             Data = memoryStream.ToArray();
             ContentType = response.ContentType;
+            Headers = response.Headers;
             response.Close();
         }
 

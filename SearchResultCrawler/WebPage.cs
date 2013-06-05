@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -11,20 +12,20 @@ namespace SearchResultCrawler
 {
     public class WebPage
     {
-        private List<string> resourceAddresses;
+        private ConcurrentBag<string> resourceAddresses;
         public string[] ResourceAddresses
         {
             get { return resourceAddresses.ToArray(); }
         }
 
-        public Dictionary<string, Resource> Resources;
+        public ConcurrentDictionary<string, Resource> Resources;
         public string RootUrl { get { return rootUrl.ToString(); } }
         private Uri rootUrl;
         public WebPage(string url)
         {
             rootUrl = new Uri(url);
-            resourceAddresses = new List<string>();
-            Resources = new Dictionary<string,Resource>();
+            resourceAddresses = new ConcurrentBag<string>();
+            Resources = new ConcurrentDictionary<string, Resource>();
             resourceAddresses.Add(url);
             var root = new Resource(url);
             if(root.StatusCode == HttpStatusCode.OK)
@@ -45,7 +46,7 @@ namespace SearchResultCrawler
                 try
                 {
                     var resource = new Resource(addr);
-                    Resources.Add(addr, resource);
+                    Resources.TryAdd(addr, resource);
                 }
                 catch { }
             });
@@ -59,9 +60,23 @@ namespace SearchResultCrawler
             
         }
 
+        public WebHeaderCollection GetHeaders()
+        {
+            return Resources[rootUrl.ToString()].Headers;
+        }
+
+        public string GetServer()
+        {
+            var server = GetHeaders().GetValues("Server");
+            if (server == null)
+                return string.Empty;
+            else
+                return server.First();
+        }
+
         public int GetPageWeight()
         {
-            return Resources.Sum(r => r.Value.ContentLength);
+            return Resources.Where(r => r.Value != null).Sum(r => r.Value.ContentLength);
         }
 
         private void FillResources(HtmlNode htmlNode)

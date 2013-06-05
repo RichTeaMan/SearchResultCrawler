@@ -16,7 +16,7 @@ namespace SearchResultCrawler
             System.Net.ServicePointManager.CheckCertificateRevocationList = false;
 
             Console.WriteLine("Beginning Google Search.");
-            var results = GoogleSearchQuery.GetSearchResult("responsivedesign");
+            var results = GoogleSearchQuery.GetSearchResult(" web development");
             Console.WriteLine("{0} results returned.", results.Count());
             foreach (var res in results)
             {
@@ -28,6 +28,8 @@ namespace SearchResultCrawler
                     Console.WriteLine("Is responsive.");
                 else
                     Console.WriteLine("Is not resonsive.");
+
+                Console.WriteLine("Server: {0}", page.GetServer());
 
             }
             Console.WriteLine("Finished!");
